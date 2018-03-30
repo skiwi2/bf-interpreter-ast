@@ -1,0 +1,5 @@
+.stack-work/
+.vscode/
+bf-interpreter-ast.cabal
+*~
+*.EXE.prof
