@@ -1,6 +1,7 @@
 module Main where
 
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import System.Environment
 
 import Lib
@@ -21,16 +22,24 @@ isOptionsEmpty (Options sOpts aOpts) = null sOpts && Map.null aOpts
 main :: IO ()
 main = do
     args <- getArgs
-    let opts = parseArgs args (Options [] Map.empty)
-    print opts
+    case validateOptions <$> parseArgs args (Options [] Map.empty) of
+        Left err            -> putStrLn err
+        Right (Left err)    -> putStrLn err
+        Right (Right opts)  -> print opts
 
-parseArgs :: [String] -> Options -> Options
-parseArgs [] opts =                     if isOptionsEmpty opts
-    then error "Usage: bf-interpreter-ast-exe [-sp] [-sm] [-f file] [-p program | program]"
-    else opts
-parseArgs [program] opts =              addAdvancedOption Program program opts
+parseArgs :: [String] -> Options -> Either String Options
+parseArgs [] opts =                     if isOptionsEmpty opts then Left usage else Right opts
+parseArgs [program] opts =              Right $ addAdvancedOption Program program opts
 parseArgs ("-sp":args) opts =           parseArgs args (addSimpleOption ShowProgram opts)
 parseArgs ("-sm":args) opts =           parseArgs args (addSimpleOption ShowMemory opts)
 parseArgs ("-p":program:args) opts =    parseArgs args (addAdvancedOption Program program opts)
 parseArgs ("-f":file:args) opts =       parseArgs args (addAdvancedOption File file opts)
-parseArgs _ _ =                         error "Usage: bf-interpreter-ast-exe [-sp] [-sm] [-f file] [-p program | program]"
+parseArgs _ _ =                         Left usage
+
+usage :: String
+usage = "Usage: bf-interpreter-ast-exe [-sp] [-sm] [-f file] [-p program | program]"
+
+validateOptions :: Options -> Either String Options
+validateOptions opts@(Options _ aOpts) = if Set.isSubsetOf (Set.fromList [Program, File]) (Map.keysSet aOpts)
+    then Left "Error: Only one of the options File and Program can be present"
+    else Right opts
