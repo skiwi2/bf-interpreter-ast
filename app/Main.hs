@@ -3,6 +3,7 @@ module Main where
 import Control.Monad
 import qualified Data.Map as Map
 import System.Environment
+import System.IO
 
 import Interpreter
 
@@ -30,6 +31,7 @@ main = do
 execute :: Options -> IO ()
 execute opts@(Options sOpts _) = do
     program <- getProgram opts
+    
     (program', memory) <- interpret program
     when (ShowProgram `elem` sOpts) $ putStrLn ("\n" ++ show program')
     when (ShowMemory `elem` sOpts) $ putStrLn ("\n" ++ show memory)
@@ -41,13 +43,13 @@ getProgram (Options _ aOpts) = case Map.lookup Program aOpts of
     Just program    -> return program
 
 parseArgs :: [String] -> Options -> Either String Options
-parseArgs [] opts =                     if isOptionsEmpty opts then Left usage else Right opts
-parseArgs [program] opts =              Right $ addAdvancedOption Program program opts
-parseArgs ("-sp":args) opts =           parseArgs args (addSimpleOption ShowProgram opts)
-parseArgs ("-sm":args) opts =           parseArgs args (addSimpleOption ShowMemory opts)
-parseArgs ("-p":program:args) opts =    parseArgs args (addAdvancedOption Program program opts)
-parseArgs ("-f":file:args) opts =       parseArgs args (addAdvancedOption File file opts)
-parseArgs _ _ =                         Left usage
+parseArgs [] opts                   = if isOptionsEmpty opts then Left usage else Right opts
+parseArgs [program] opts            = Right $ addAdvancedOption Program program opts
+parseArgs ("-sp":args) opts         = parseArgs args (addSimpleOption ShowProgram opts)
+parseArgs ("-sm":args) opts         = parseArgs args (addSimpleOption ShowMemory opts)
+parseArgs ("-p":program:args) opts  = parseArgs args (addAdvancedOption Program program opts)
+parseArgs ("-f":file:args) opts     = parseArgs args (addAdvancedOption File file opts)
+parseArgs _ _                       = Left usage
 
 usage :: String
 usage = "Usage: bf-interpreter-ast-exe [-sp] [-sm] [-f file] [-p program | program]"
