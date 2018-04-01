@@ -7,7 +7,7 @@ module Tape
     , onTapeValue
     ) where
 
-data Tape a = Tape [a] a [a] deriving (Eq)
+data Tape a = Tape [a] !a [a] deriving (Eq)
 
 instance Show a => Show (Tape a) where
     show (Tape ls v rs) = show (reverse ls) ++ " " ++ show v ++ " " ++  show rs

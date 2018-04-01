@@ -3,7 +3,6 @@ module Main where
 import Control.Monad
 import qualified Data.Map as Map
 import System.Environment
-import System.IO
 
 import Interpreter
 
@@ -31,7 +30,6 @@ main = do
 execute :: Options -> IO ()
 execute opts@(Options sOpts _) = do
     program <- getProgram opts
-    
     (program', memory) <- interpret program
     when (ShowProgram `elem` sOpts) $ putStrLn ("\n" ++ show program')
     when (ShowMemory `elem` sOpts) $ putStrLn ("\n" ++ show memory)
