@@ -22,10 +22,9 @@ isOptionsEmpty (Options sOpts aOpts) = null sOpts && Map.null aOpts
 main :: IO ()
 main = do
     args <- getArgs
-    case validateOptions <$> parseArgs args (Options [] Map.empty) of
-        Left err            -> putStrLn err
-        Right (Left err)    -> putStrLn err
-        Right (Right opts)  -> execute opts
+    case parseArgs args (Options [] Map.empty) >>= validateOptions of
+        Left err    -> putStrLn err
+        Right opts  -> execute opts
 
 execute :: Options -> IO ()
 execute opts@(Options sOpts _) = do

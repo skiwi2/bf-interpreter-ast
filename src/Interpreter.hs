@@ -57,7 +57,7 @@ interpret input = do
     let program = makeProgram input
     let memory = makeTape (BFMemoryCell 0)
     memory' <- execute program memory
-    return  (program, memory')
+    return (program, memory')
 
 execute :: BFProgram -> BFMemory -> IO BFMemory
 execute [] memory = return memory
